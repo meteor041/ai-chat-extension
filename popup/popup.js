@@ -14,46 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 配置相关逻辑
-  const configModal = document.getElementById('config-modal');
-  const baseUrlInput = document.getElementById('base-url');
-  const modelInput = document.getElementById('model');
-  const configApiKeyInput = document.getElementById('config-api-key');
-
-  // 初始化配置
-  chrome.storage.local.get(['baseUrl', 'model', 'apiKey'], (result) => {
-    baseUrlInput.value = result.baseUrl || 'https://api.deepseek.com/v1';
-    modelInput.value = result.model || 'deepseek-chat';
-    configApiKeyInput.value = result.apiKey || '';
+  // 切换密钥可见性
+  document.getElementById('toggle-key').addEventListener('click', () => {
+    apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+    document.getElementById('toggle-key').textContent = 
+      apiKeyInput.type === 'password' ? '显示' : '隐藏';
   });
 
-  // 切换配置密钥可见性
-  document.getElementById('config-toggle-key').addEventListener('click', () => {
-    configApiKeyInput.type = configApiKeyInput.type === 'password' ? 'text' : 'password';
-    document.getElementById('config-toggle-key').textContent = 
-      configApiKeyInput.type === 'password' ? '显示' : '隐藏';
-  });
-
-  // 打开配置弹窗
-  document.getElementById('settings').addEventListener('click', () => {
-    configModal.style.display = 'flex';
-  });
-
-  // 保存配置
-  document.getElementById('save-config').addEventListener('click', () => {
-    chrome.storage.local.set({
-      baseUrl: baseUrlInput.value,
-      model: modelInput.value,
-      apiKey: configApiKeyInput.value
-    });
-    configModal.style.display = 'none';
-  });
-
-  // 点击遮罩层关闭弹窗
-  configModal.addEventListener('click', (e) => {
-    if (e.target === configModal) {
-      configModal.style.display = 'none';
-    }
+  // 实时保存API密钥
+  apiKeyInput.addEventListener('input', () => {
+    chrome.storage.local.set({ apiKey: apiKeyInput.value });
   });
 
   // 清除历史记录
@@ -65,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 发送消息逻辑
   sendButton.addEventListener('click', async () => {
     const message = input.value.trim();
-    console.log(message);
     if (!message) {
       addMessage('请输入有效内容', 'error');
       return;
@@ -102,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
       addMessage(message, 'user');
       addMessage('正在加载中.....', 'ai');
       input.value = '';
-      console.log("here");
       saveChatHistory();
 
       const baseUrl = await getConfig('baseUrl');

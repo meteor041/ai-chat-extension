@@ -129,31 +129,8 @@
 <body>
   <div id="chat-container"></div>
   <div style="display: flex; gap: 5px; margin-bottom: 5px;">
-    <button id="settings" style="flex: 1;">配置</button>
-    <button id="clear-history" style="flex: 1;">清除记录</button>
-  </div>
-  
-  <!-- 配置弹窗 -->
-  <div id="config-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); padding: 20px;">
-    <div style="background: white; padding: 20px; border-radius: 8px;">
-      <h3>大模型配置</h3>
-      <div style="margin-bottom: 10px;">
-        <label>API Base URL:</label>
-        <input type="text" id="base-url" style="width: 100%" placeholder="https://api.deepseek.com/v1">
-      </div>
-      <div style="margin-bottom: 10px;">
-        <label>Model:</label>
-        <input type="text" id="model" style="width: 100%" placeholder="deepseek-chat">
-      </div>
-      <div style="margin-bottom: 10px;">
-        <label>API Key:</label>
-        <div style="display: flex; gap: 5px;">
-          <input type="password" id="config-api-key" style="flex: 1;" placeholder="API密钥">
-          <button id="config-toggle-key" style="width: 60px;">显示</button>
-        </div>
-      </div>
-      <button id="save-config">保存配置</button>
-    </div>
+    <input type="password" id="api-key" placeholder="API密钥" style="flex: 5;" autocomplete="off">
+    <button id="toggle-key" style="flex: 1;">显示</button>
   </div>
   <input type="text" id="input" placeholder="输入消息..." autocomplete="off">
   <div style="display: flex; gap: 5px;">
