@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- 本地化依赖库 -->
+  <script src="lib/marked.min.js"></script>
+  <script src="lib/purify.min.js"></script>
+  <style>
+    /* 限定Markdown样式仅对AI消息生效 */
+    .ai-message .markdown-body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap; /* 保留换行符 */
+      margin-top: 0; /* 调整顶部外边距 */
+      margin-bottom: 0.5em; /* 调整底部外边距 */
+      padding-top: 0; /* 移除顶部内边距 */
+      padding-bottom: 0; /* 移除底部内边距 */
+    }
+    .markdown-body code {
+      background-color: rgba(175,184,193,0.2);
+      padding: 0.2em 0.4em;
+      border-radius: 6px;
+    }
+    .markdown-body pre {
+      background-color: #f6f8fa;
+      padding: 16px;
+      border-radius: 6px;
+      overflow: auto;
+    }
+    .markdown-body table {
+      border-collapse: collapse;
+      margin: 1em 0;
+    }
+    .markdown-body td, .markdown-body th {
+      border: 1px solid #dfe2e5;
+      padding: 6px 13px;
+    }
+    
+    /* 原有样式 */
+    body {
+      width: 400px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+    }
+    #chat-container {
+      min-height: 300px;
+      max-height: 500px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 5px;  /* 减少容器内边距 */
+      margin-bottom: 10px;
+    }
+    .message {
+      margin: 2px 0;
+      padding: 6px;
+      border-radius: 12px;
+      max-width: 85%;
+      clear: both;
+    }
+    .user-message {
+      white-space: pre-line;  /* 保留用户消息换行 */
+    }
+    .user-message {
+      background: #0084ff;
+      color: white;
+      float: right;
+      padding: 6px;
+      font-size: 14;
+      margin-right: 1px;  /* 统一水平间距 */
+      border-bottom-right-radius: 3px;
+    }
+    .ai-message {
+      background: #f5f5f5;
+      border-radius: 10px;
+      margin: 6px 0;
+      padding: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    
+    /* 优化Markdown渲染样式 */
+    .ai-message p {
+      margin: 4px 0;
+      line-height: 1.5;
+    }
+    
+    .ai-message ul,
+    .ai-message ol {
+      padding-left: 18px;
+      margin: 4px 0;
+    }
+    
+    .ai-message pre {
+      background: rgba(0,0,0,0.05);
+      padding: 8px;
+      border-radius: 4px;
+      margin: 6px 0;
+      overflow-x: auto;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .ai-message code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+      background: rgba(0,0,0,0.05);
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+    .error-message {
+      background: #ffebee;
+      color: #b71c1c;
+    }
+    input, button {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #2196F3;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container"></div>
+  <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+    <button id="settings" style="flex: 1;">配置</button>
+    <button id="clear-history" style="flex: 1;">清除记录</button>
+  </div>
+  
+  <!-- 配置弹窗 -->
+  <div id="config-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); padding: 20px;">
+    <div style="background: white; padding: 20px; border-radius: 8px;">
+      <h3>大模型配置</h3>
+      <div style="margin-bottom: 10px;">
+        <label>API Base URL:</label>
+        <input type="text" id="base-url" style="width: 100%" placeholder="https://api.deepseek.com/v1">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label>Model:</label>
+        <input type="text" id="model" style="width: 100%" placeholder="deepseek-chat">
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label>API Key:</label>
+        <div style="display: flex; gap: 5px;">
+          <input type="password" id="config-api-key" style="flex: 1;" placeholder="API密钥">
+          <button id="config-toggle-key" style="width: 60px;">显示</button>
+        </div>
+      </div>
+      <button id="save-config">保存配置</button>
+    </div>
+  </div>
+  <input type="text" id="input" placeholder="输入消息..." autocomplete="off">
+  <div style="display: flex; gap: 5px;">
+    <button id="send" style="flex: 5;">发送</button>
+    <button id="clear-history" style="flex: 1;">清除记录</button>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

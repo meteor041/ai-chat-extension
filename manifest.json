@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "AI Chat Extension",
+  "version": "1.0",
+  "description": "实时对话大模型的浏览器扩展",
+  "icons": {
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["*://api.deepseek.com/*"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
