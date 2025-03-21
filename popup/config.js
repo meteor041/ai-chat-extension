@@ -1,8 +1,8 @@
 // 加载保存的配置
 function loadConfig() {
-  chrome.storage.sync.get(['baseUrl', 'model', 'apiKey'], function(result) {
-    document.getElementById('base-url').value = result.baseUrl || '';
-    document.getElementById('model').value = result.model || '';
+  chrome.storage.local.get(['baseUrl', 'model', 'apiKey'], function(result) {
+    document.getElementById('base-url').value = result.baseUrl || 'https://api.deepseek.com/v1';
+    document.getElementById('model').value = result.model || 'deepseek-chat';
     document.getElementById('api-key').value = result.apiKey || '';
   });
 }
@@ -20,6 +20,11 @@ function saveConfig() {
   }, function() {
     showMessage('配置保存成功！');
   });
+
+  // 延迟关闭窗口，给用户看到保存成功的提示
+  setTimeout(() => {
+    window.close();
+  }, 1500); // 可以根据消息提示的显示时间调整延迟
 }
 
 // 显示消息提示

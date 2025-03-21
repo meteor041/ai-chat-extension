@@ -2,28 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatContainer = document.getElementById('chat-container');
   const input = document.getElementById('input');
   const sendButton = document.getElementById('send');
-  const apiKeyInput = document.getElementById('api-key');
   const clearHistoryButton = document.getElementById('clear-history');
+  const configButton = document.getElementById('open-config');
 
   // 初始化存储数据
-  chrome.storage.local.get(['apiKey', 'chatHistory'], (result) => {
-    apiKeyInput.value = result.apiKey || '';
+  chrome.storage.local.get(['chatHistory'], (result) => {
     if (result.chatHistory?.html) {
       chatContainer.innerHTML = result.chatHistory.html;
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-  });
-
-  // 切换密钥可见性
-  document.getElementById('toggle-key').addEventListener('click', () => {
-    apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
-    document.getElementById('toggle-key').textContent = 
-      apiKeyInput.type === 'password' ? '显示' : '隐藏';
-  });
-
-  // 实时保存API密钥
-  apiKeyInput.addEventListener('input', () => {
-    chrome.storage.local.set({ apiKey: apiKeyInput.value });
   });
 
   // 清除历史记录
@@ -57,11 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
       input.disabled = true;
       sendButton.classList.add('loading');
       
-      // 获取API密钥
-      const apiKey = await getApiKey();
+      // 获取配置
+      const { baseUrl, model, apiKey } = await getConfig();
       if (!apiKey) {
         addMessage('请先设置API密钥', 'error');
-        // 提前返回前恢复状态
         sendButton.disabled = originalButtonState;
         input.disabled = originalInputState;
         sendButton.classList.remove('loading');
@@ -73,21 +59,18 @@ document.addEventListener('DOMContentLoaded', () => {
       input.value = '';
       saveChatHistory();
 
-      const baseUrl = await getConfig('baseUrl');
-      const model = await getConfig('model');
-      
       const response = await fetch(`${baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await getApiKey()}`
+          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "deepseek-chat",
+          model: model,
           messages: (await getChatHistory()).map(msg => ({
             role: msg.type === 'user' ? 'user' : 'assistant',
             content: msg.text
-          })).concat({role: "user", content: message}),
+          })).concat({ role: 'user', content: message }),
           stream: true
         })
       });
@@ -127,6 +110,15 @@ saveChatHistory();
       input.disabled = originalInputState;
       sendButton.classList.remove('loading');
     }
+  });
+
+  configButton.addEventListener('click', () => {
+    chrome.windows.create({
+      url: chrome.runtime.getURL('popup/config.html'),
+      type: 'popup',
+      width: 400,
+      height: 400
+    });
   });
 
   function addMessage(text, type) {
@@ -171,25 +163,21 @@ saveChatHistory();
     }
   }
 
-  async function getConfig(key) {
-    return new Promise(resolve => {
-      chrome.storage.local.get([key], result => {
-        const defaults = {
-          baseUrl: 'https://api.deepseek.com/v1',
-          model: 'deepseek-chat'
-        };
-        resolve(result[key] || defaults[key]);
+async function getConfig() {
+  return new Promise(resolve => {
+    chrome.storage.local.get(['baseUrl', 'model', 'apiKey'], result => {
+      const defaults = {
+        baseUrl: 'https://api.deepseek.com/v1',
+        model: 'deepseek-chat'
+      };
+      resolve({
+        baseUrl: result.baseUrl || defaults.baseUrl,
+        model: result.model || defaults.model,
+        apiKey: result.apiKey
       });
     });
-  }
-
-  async function getApiKey() {
-    return new Promise(resolve => {
-      chrome.storage.local.get(['apiKey'], result => {
-        resolve(result.apiKey || prompt('请输入API密钥:'));
-      });
-    });
-  }
+  });
+}
 
   // 获取完整对话历史
   async function getChatHistory() {
