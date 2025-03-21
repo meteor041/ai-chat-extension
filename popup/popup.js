@@ -93,15 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = JSON.parse(chunk);
             if (data.choices[0].delta.content) {
               aiResponse += data.choices[0].delta.content;
-      updateLastMessage(aiResponse); // 保留加载提示并追加内容
-saveChatHistory(); 
+              updateLastMessage(aiResponse); // 保留加载提示并追加内容
+              saveChatHistory(); 
             }
           } catch (e) {
             console.error('解析错误:', e);
           }
         }
       }
-      finalizeMessage();
+      // finalizeMessage();
     } catch (error) {
       addMessage(`请求失败: ${error.message}`, 'error');
     } finally {
